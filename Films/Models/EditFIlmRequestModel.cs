@@ -3,14 +3,14 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Films.Models
 {
-    public class AddFilmModel
-    {       
+    public class EditFIlmRequestModel
+    {    
         [Length(1, 200)]
         public string Name { get; set; }
         [Length(1, 200)]
         public string Director { get; set; }
+        [Required]
         public DateTime ReleaseDate { get; set; }
-        public List<Category> Categories { get; set; } = new List<Category>();
-        public List<Category> AllCategories { get; set; } = new List<Category>();
+        public int[] Categories { get; set; }
     }
 }

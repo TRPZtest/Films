@@ -33,25 +33,34 @@ namespace Films.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Details([FromRoute]int id, [FromServices]IMapper mapper)
+        public async Task<IActionResult> Edit([FromRoute]int id, [FromServices]IMapper mapper)
         {
             var film = await _filmsDbSet
                 .Include(x => x.Categories)
                 .FirstOrDefaultAsync(x => x.Id == id);
-
-            var allcategories = await _context.Categories
-                .AsNoTracking()
-                .ToListAsync();
-
+           
             if (film == null)
             {
                 return NotFound();
             }
 
             var editFilmModel = mapper.Map<EditFilmModel>(film);
-            editFilmModel.AllCategories = allcategories;
-
+          
             return View(editFilmModel);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Edit([FromForm] EditFIlmRequestModel request, [FromServices] IMapper mapper)
+        {
+            try
+            {
+                return RedirectToAction("List");
+            }
+            catch(Exception ex) 
+            {
+                return View("Error");
+            }
+         
         }
     }
 }
