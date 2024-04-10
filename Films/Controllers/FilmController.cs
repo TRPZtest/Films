@@ -1,5 +1,7 @@
-﻿using Films.Data.Db;
+﻿using AutoMapper;
+using Films.Data.Db;
 using Films.Data.Db.Entities;
+using Films.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -31,16 +33,25 @@ namespace Films.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Details([FromRoute]int id)
+        public async Task<IActionResult> Details([FromRoute]int id, [FromServices]IMapper mapper)
         {
-            var film = await _filmsDbSet.FindAsync(id);
+            var film = await _filmsDbSet
+                .Include(x => x.Categories)
+                .FirstOrDefaultAsync(x => x.Id == id);
+
+            var allcategories = await _context.Categories
+                .AsNoTracking()
+                .ToListAsync();
 
             if (film == null)
             {
                 return NotFound();
             }
 
-            return View(film);
+            var editFilmModel = mapper.Map<EditFilmModel>(film);
+            editFilmModel.AllCategories = allcategories;
+
+            return View(editFilmModel);
         }
     }
 }

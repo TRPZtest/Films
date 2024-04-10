@@ -1,4 +1,4 @@
-﻿@model Films.Models.FilmModel
+﻿@model Films.Models.EditFilmModel
 
 @{
     ViewData["Title"] = "Details";
@@ -31,11 +31,18 @@
                 <label asp-for="ReleaseDate" class="control-label"></label>
                 <input asp-for="ReleaseDate" class="form-control" />
                 <span asp-validation-for="ReleaseDate" class="text-danger"></span>
-            </div>
+            </div>           
             <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
+                <label asp-for="Categories" class="control-label"></label>
+                <select asp-for="Categories" class="form-control" id="categoriesSelector" multiple>
+                </select>                
             </div>
-        </form>
+            <div>
+                <label>
+                    <input type="submit" value="Save" class="btn btn-primary" />
+                </label>
+            </div>
+        </form>              
     </div>
 </div>
 
@@ -43,6 +50,9 @@
     <a asp-action="Index">Back to List</a>
 </div>
 
+
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>  
+    <script src="~/js/Categories.js" asp-append-version="true"></script>
 }
