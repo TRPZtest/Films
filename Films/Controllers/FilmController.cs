@@ -10,15 +10,11 @@ using Microsoft.EntityFrameworkCore;
 namespace Films.Controllers
 {
     public class FilmController : Controller
-    {
-        private readonly AppDbContext _context;
-        private readonly DbSet<Film> _filmsDbSet;
+    {            
         private readonly FilmsService _service;
 
         public FilmController(AppDbContext context)
-        {
-            _context = context;
-            _filmsDbSet = context.Films;
+        {          
             _service = new FilmsService(context);
         }
 
@@ -44,18 +40,25 @@ namespace Films.Controllers
             return View();
         }
 
+        [HttpPost]
+        public async Task<IActionResult> Add([FromForm] EditFIlmRequestModel request, [FromServices] IMapper mapper)
+        {
+
+            var film = mapper.Map<Film>(request);
+
+            await _service.AddFilm(film, request.Categories);
+
+            return RedirectToAction("List");
+        }
+        
         [HttpGet]
         public async Task<IActionResult> Edit([FromRoute]int id, [FromServices]IMapper mapper)
         {
-            var film = await _filmsDbSet
-                .Include(x => x.Categories)
-                .FirstOrDefaultAsync(x => x.Id == id);
-           
-            if (film == null)
-            {
-                return NotFound();
-            }
+            var film = await _service.GetFilmById(id);
 
+            if (film == null)           
+                return NotFound();
+          
             var editFilmModel = mapper.Map<EditFilmModel>(film);
           
             return View(editFilmModel);
@@ -63,20 +66,12 @@ namespace Films.Controllers
 
         [HttpPost]
         public async Task<IActionResult> Edit([FromForm] EditFIlmRequestModel request, [FromServices] IMapper mapper)
-        {
-            try
-            {
-                var film = mapper.Map<Film>(request);
+        {            
+            var film = mapper.Map<Film>(request);
 
-                await _service.UpdateFilm(film, request.Categories);
+            await _service.UpdateFilm(film, request.Categories);
 
-                return RedirectToAction("List");
-            }
-            catch(Exception ex) 
-            {
-                return RedirectToAction("List");
-            }
-         
+            return RedirectToAction("List");                    
         }
     }
 }

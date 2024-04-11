@@ -1,4 +1,4 @@
-let selector = new CategoriesSelector();
+const selector = new CategoriesSelector();
 
 const filmCategories = [];
 $("#filterFilmCategories option").each(function () {

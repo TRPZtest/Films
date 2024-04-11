@@ -43,19 +43,6 @@ namespace Films.Controllers
             var childCategoryModels = mapper.Map<List<CategoryModel>>(childCategories);
 
             return childCategoryModels;
-        }
-
-        [HttpGet]
-        public async Task<List<CategoryModel>> ChildCategories([FromQuery]int id, [FromServices] IMapper mapper)
-        {
-            var childCategories = await _context.Categories
-                .AsNoTracking()
-                .Where(x => x.ParentCategoryId == id)
-                .ToListAsync();
-
-            var childCategoryModels = mapper.Map<List<CategoryModel>>(childCategories);
-
-            return childCategoryModels;
-        }             
+        }               
     }
 }

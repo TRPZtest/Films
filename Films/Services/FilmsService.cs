@@ -45,5 +45,23 @@ namespace Films.Services
                 .ToListAsync();
             return result;
         }
+
+        public async Task <Film?> GetFilmById(int id)
+        {
+            var film = await _filmsDbSet
+              .Include(x => x.Categories)
+              .AsNoTracking()
+              .FirstOrDefaultAsync(x => x.Id == id);
+
+            return film;
+        }
+
+        public async Task AddFilm(Film film, int[] categories)
+        {
+            await _filmsDbSet.AddAsync(film);
+            film.Categories = await _context.Categories.Where(c => categories.Contains(c.Id)).ToListAsync();
+
+            await _context.SaveChangesAsync();
+        }
     }
 }
