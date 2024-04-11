@@ -12,18 +12,20 @@ namespace Films.Controllers
     public class FilmController : Controller
     {            
         private readonly FilmsService _service;
+        private readonly IMapper _mapper;
 
-        public FilmController(AppDbContext context)
-        {          
-            _service = new FilmsService(context);
+        public FilmController(FilmsService service, IMapper mapper)
+        {
+            _service = service;
+            _mapper = mapper;
         }
 
         [HttpGet]
-        public async Task<IActionResult> List([FromQuery] SortType? sortType, [FromQuery] int[]? categories, string? director, [FromServices] IMapper mapper)
+        public async Task<IActionResult> List([FromQuery] SortType? sortType, [FromQuery] int[]? categories, string? director)
         {
            var films = await _service.GetAllAsync(categories, director);
 
-            var filmModels = mapper.Map<List<FilmModel>>(films);
+            var filmModels = _mapper.Map<List<FilmModel>>(films);
 
             var listModel = new FilmsListModel
             {
@@ -41,10 +43,10 @@ namespace Films.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Add([FromForm] EditFIlmRequestModel request, [FromServices] IMapper mapper)
+        public async Task<IActionResult> Add([FromForm] EditFIlmRequestModel request)
         {
 
-            var film = mapper.Map<Film>(request);
+            var film = _mapper.Map<Film>(request);
 
             await _service.AddAsync(film, request.Categories);
 
@@ -52,22 +54,22 @@ namespace Films.Controllers
         }
         
         [HttpGet]
-        public async Task<IActionResult> Edit([FromRoute]int id, [FromServices]IMapper mapper)
+        public async Task<IActionResult> Edit([FromRoute]int id)
         {
             var film = await _service.GetByIdAsync(id);
 
             if (film == null)           
                 return NotFound();
           
-            var editFilmModel = mapper.Map<EditFilmModel>(film);
+            var editFilmModel = _mapper.Map<EditFilmModel>(film);
           
             return View(editFilmModel);
         }
 
         [HttpPost]
-        public async Task<IActionResult> Edit([FromForm] EditFIlmRequestModel request, [FromServices] IMapper mapper)
+        public async Task<IActionResult> Edit([FromForm] EditFIlmRequestModel request)
         {            
-            var film = mapper.Map<Film>(request);
+            var film = _mapper.Map<Film>(request);
 
             await _service.Update(film, request.Categories);
 

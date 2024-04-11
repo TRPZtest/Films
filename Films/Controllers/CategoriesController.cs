@@ -10,10 +10,12 @@ namespace Films.Controllers
     public class CategoriesController : Controller
     {
         private readonly CategoriesService _service;
+        private readonly IMapper _mapper;
 
-        public CategoriesController(AppDbContext context) 
-        { 
-            _service = new CategoriesService(context);
+        public CategoriesController(CategoriesService service, IMapper mapper) 
+        {
+            _service = service;
+            _mapper = mapper;
         }
 
         [HttpGet]
@@ -25,7 +27,7 @@ namespace Films.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Edit([FromRoute]int Id, [FromServices]IMapper mapper)
+        public async Task<IActionResult> Edit([FromRoute]int Id)
         {
             var category = await _service.GetById(Id);
 
@@ -35,7 +37,7 @@ namespace Films.Controllers
             var allCategories = await _service.GetAllAsync();
             allCategories.RemoveAll(x => x.Id == category.Id);
 
-            var editModel = mapper.Map<EditCategoryModel> (category);
+            var editModel = _mapper.Map<EditCategoryModel> (category);
 
             editModel.AllCategories = allCategories;
 
@@ -43,14 +45,14 @@ namespace Films.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Edit([FromForm] EditCategoryModel request, [FromServices]IMapper mapper)
+        public async Task<IActionResult> Edit([FromForm] EditCategoryModel request)
         {
             if (request.Id == request.ParentCategoryId)
                 return BadRequest();
 
             var allCategories = await _service.GetAllAsync();
 
-            var category = mapper.Map<Category>(request);
+            var category = _mapper.Map<Category>(request);
 
             await _service.Edit(category);
 
@@ -68,9 +70,9 @@ namespace Films.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Add([FromForm] EditCategoryModel request, [FromServices] IMapper mapper)
+        public async Task<IActionResult> Add([FromForm] EditCategoryModel request)
         {
-            var category = mapper.Map<Category>(request);
+            var category = _mapper.Map<Category>(request);
 
             await _service.Add(category);
             return RedirectToAction("List");

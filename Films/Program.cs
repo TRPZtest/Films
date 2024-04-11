@@ -1,5 +1,7 @@
 using Films.Data.Db;
 using Films.Mapper;
+using Films.Services;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
@@ -9,6 +11,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllersWithViews();
 
 builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("test")));
+builder.Services.AddScoped<FilmsService>();
+builder.Services.AddScoped<CategoriesService>();
 
 builder.Services.AddAutoMapper(options => options.AddProfile<AppMappingProfile>());
 

@@ -13,29 +13,31 @@ namespace Films.Controllers
     [ApiController]
     public class CategoriesApiController : ControllerBase
     {
-        private readonly CategoriesService _servies;     
+        private readonly CategoriesService _service;
+        private readonly IMapper _mapper;
 
-        public CategoriesApiController(AppDbContext context)
+        public CategoriesApiController(CategoriesService service, IMapper mapper)
         {
-            _servies = new CategoriesService(context);          
+            _service = service;
+            _mapper = mapper;
         }
 
         [HttpGet()]
-        public async Task<List<CategoryModel>> CategoriesByFilmId([FromQuery]int filmId, [FromServices] IMapper mapper)
+        public async Task<List<CategoryModel>> CategoriesByFilmId([FromQuery]int filmId)
         {
-            var categories = await _servies.GetByFilmId(filmId);
+            var categories = await _service.GetByFilmId(filmId);
 
-            var categoryModels = mapper.Map<List<CategoryModel>>(categories);
+            var categoryModels = _mapper.Map<List<CategoryModel>>(categories);
 
             return categoryModels;
         }
 
         [HttpGet]
-        public async Task<List<CategoryModel>> Categories([FromServices] IMapper mapper)
+        public async Task<List<CategoryModel>> Categories()
         {
-            var categories = await _servies.GetAllAsync();
+            var categories = await _service.GetAllAsync();
 
-            var categoryModels = mapper.Map<List<CategoryModel>>(categories);
+            var categoryModels = _mapper.Map<List<CategoryModel>>(categories);
 
             return categoryModels;
         }               
