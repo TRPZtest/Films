@@ -13,7 +13,7 @@ namespace Films.Models
         public string Director { get; set; }
         [Required]
         public DateTime ReleaseDate { get; set; }       
-        public List<Category> Categories { get; set; } = new List<Category>();
+        public List<Category>? Categories { get; set; } = new List<Category>();
         
     }
 }

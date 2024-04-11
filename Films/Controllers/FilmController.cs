@@ -3,6 +3,7 @@ using Films.Data.Db;
 using Films.Data.Db.Entities;
 using Films.Enums;
 using Films.Models;
+using Films.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -12,20 +13,19 @@ namespace Films.Controllers
     {
         private readonly AppDbContext _context;
         private readonly DbSet<Film> _filmsDbSet;
+        private readonly FilmsService _service;
 
         public FilmController(AppDbContext context)
         {
             _context = context;
             _filmsDbSet = context.Films;
+            _service = new FilmsService(context);
         }
 
         [HttpGet]
         public async Task<IActionResult> List([FromQuery] SortType? sortType, [FromQuery] int[]? categories, string? director, [FromServices] IMapper mapper)
         {
-           var films = await _filmsDbSet
-                .Include(x => x.Categories)
-                .AsNoTracking()
-                .ToListAsync();
+           var films = await _service.GetAllFilmsAsync(categories, director);
 
             var filmModels = mapper.Map<List<FilmModel>>(films);
 
@@ -66,11 +66,15 @@ namespace Films.Controllers
         {
             try
             {
+                var film = mapper.Map<Film>(request);
+
+                await _service.UpdateFilm(film, request.Categories);
+
                 return RedirectToAction("List");
             }
             catch(Exception ex) 
             {
-                return View("Error");
+                return RedirectToAction("List");
             }
          
         }
