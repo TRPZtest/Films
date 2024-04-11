@@ -16,7 +16,7 @@ namespace Films.Services
             _filmsDbSet = context.Films;
         }
 
-        public async Task UpdateFilm(Film film, int[] categories)
+        public async Task Update(Film film, int[] categories)
         {
             var record = await _filmsDbSet.Include(x => x.Categories).FirstOrDefaultAsync(x => x.Id == film.Id);
 
@@ -32,7 +32,7 @@ namespace Films.Services
             await _context.SaveChangesAsync();            
         }
 
-        public async Task<List<Film>> GetAllFilmsAsync(int[]? categories = null, string? director = null, SortType? sortType = null)
+        public async Task<List<Film>> GetAllAsync(int[]? categories = null, string? director = null, SortType? sortType = null)
         {
             var films = _filmsDbSet.AsQueryable();
             if (categories!.Any())           
@@ -46,7 +46,7 @@ namespace Films.Services
             return result;
         }
 
-        public async Task <Film?> GetFilmById(int id)
+        public async Task <Film?> GetByIdAsync(int id)
         {
             var film = await _filmsDbSet
               .Include(x => x.Categories)
@@ -56,7 +56,7 @@ namespace Films.Services
             return film;
         }
 
-        public async Task AddFilm(Film film, int[] categories)
+        public async Task AddAsync(Film film, int[] categories)
         {
             await _filmsDbSet.AddAsync(film);
             film.Categories = await _context.Categories.Where(c => categories.Contains(c.Id)).ToListAsync();

@@ -21,7 +21,7 @@ namespace Films.Controllers
         [HttpGet]
         public async Task<IActionResult> List([FromQuery] SortType? sortType, [FromQuery] int[]? categories, string? director, [FromServices] IMapper mapper)
         {
-           var films = await _service.GetAllFilmsAsync(categories, director);
+           var films = await _service.GetAllAsync(categories, director);
 
             var filmModels = mapper.Map<List<FilmModel>>(films);
 
@@ -46,7 +46,7 @@ namespace Films.Controllers
 
             var film = mapper.Map<Film>(request);
 
-            await _service.AddFilm(film, request.Categories);
+            await _service.AddAsync(film, request.Categories);
 
             return RedirectToAction("List");
         }
@@ -54,7 +54,7 @@ namespace Films.Controllers
         [HttpGet]
         public async Task<IActionResult> Edit([FromRoute]int id, [FromServices]IMapper mapper)
         {
-            var film = await _service.GetFilmById(id);
+            var film = await _service.GetByIdAsync(id);
 
             if (film == null)           
                 return NotFound();
@@ -69,7 +69,7 @@ namespace Films.Controllers
         {            
             var film = mapper.Map<Film>(request);
 
-            await _service.UpdateFilm(film, request.Categories);
+            await _service.Update(film, request.Categories);
 
             return RedirectToAction("List");                    
         }
