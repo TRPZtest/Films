@@ -30,6 +30,9 @@ namespace Films.Services
 
         public async Task Edit(Category category)
         {
+            if (category.Id == category.ParentCategoryId)
+                throw new Exception("Wrong parent category Id");
+
             _context.Update(category);
             await _context.SaveChangesAsync();
         }
@@ -39,7 +42,6 @@ namespace Films.Services
             await _context.AddAsync(category);
             await _context.SaveChangesAsync();
         }
-
 
         public async Task<List<CategoryListItemModel>> GetCategoriesList()
         {
@@ -51,6 +53,13 @@ namespace Films.Services
             }
                                
             return categories;
+        }
+
+        public async Task<List<Category>> GetByFilmId(int filmId)
+        {
+            var film = await _context.Films.Include(x => x.Categories).FirstAsync(x => x.Id ==  filmId);
+
+            return film.Categories;
         }
 
         private async Task<int> GetNestingLevel(int categoryId)

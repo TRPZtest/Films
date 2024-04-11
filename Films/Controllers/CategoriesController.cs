@@ -44,7 +44,10 @@ namespace Films.Controllers
 
         [HttpPost]
         public async Task<IActionResult> Edit([FromForm] EditCategoryModel request, [FromServices]IMapper mapper)
-        {          
+        {
+            if (request.Id == request.ParentCategoryId)
+                return BadRequest();
+
             var allCategories = await _service.GetAllAsync();
 
             var category = mapper.Map<Category>(request);
