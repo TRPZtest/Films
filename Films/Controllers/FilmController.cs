@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Films.Data.Db;
 using Films.Data.Db.Entities;
+using Films.Enums;
 using Films.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -19,11 +20,22 @@ namespace Films.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> List()
+        public async Task<IActionResult> List([FromQuery] SortType? sortType, [FromQuery] int[]? categories, string? director, [FromServices] IMapper mapper)
         {
-           var films = await _filmsDbSet.ToListAsync();
+           var films = await _filmsDbSet
+                .Include(x => x.Categories)
+                .AsNoTracking()
+                .ToListAsync();
 
-           return View(films);
+            var filmModels = mapper.Map<List<FilmModel>>(films);
+
+            var listModel = new FilmsListModel
+            {
+                Films = filmModels,
+                FilmsFilter = new FilmsFilterModel { Categories = categories, Director = director }
+            };
+
+            return View(listModel);
         }
 
         [HttpGet]

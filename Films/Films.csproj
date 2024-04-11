@@ -17,4 +17,8 @@
     <ProjectReference Include="..\Films.Data\Films.Data.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="NewFolder\" />
+  </ItemGroup>
+
 </Project>

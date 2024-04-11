@@ -1,17 +1,9 @@
-﻿class СategoriesSelector {
-    constructor() {
-        this.container = document.querySelector('.categoriesSelector'); 
-        this.relatedCategoriesContainer = {};
-        this.rootCategoriesContainer = {};
-        this.filmCategoriesContainer = {};
-        this.inputsContainer = {};
-        this.filmId = 4;  
-        this.allCategories = [];
-        this.baseURL = '/CategoriesApi/';           
-   
-        this.categoryOptionsContainer = {};
+﻿class CategoriesSelector {
+    constructor(filmId) {
+        this.cotainer = $('#categoriesSelector');
+        this.baseURL = '/CategoriesApi/';
+        this.filmId = filmId;
     }
-
     async fetchData(url, params = {}) {
         try {
             const queryParams = new URLSearchParams(params).toString();
@@ -32,88 +24,51 @@
     }
 
     async fetchCategoriesByFilmId(filmId) {
+        if (!filmId)
+            return [];
         return await this.fetchData(this.baseURL + 'CategoriesByFilmId', { filmId });
     }
 
-    createOptionButton(category) {
-        let btn = document.createElement("button");
-        btn.className = 'btn btn-primary';
-        btn.textContent = category.name;
-        btn.setAttribute('categoryId', category.id);
-        return btn;
-    }
+    async getOptions(filmCategories) {
+        const allCategories = await this.fetchAllCategories();
 
-    async render() {
-        this.setContainers();
+        if (!filmCategories)
+            filmCategories = await this.fetchCategoriesByFilmId(this.filmId);
 
-        this.allCategories = await this.fetchAllCategories();
+        const dictionary = Object.groupBy(allCategories, ({ parentCategoryId }) => parentCategoryId);
+        const options = [];
 
-        let filmCategories = await this.fetchCategoriesByFilmId(this.filmId);
+        Object.keys(dictionary).forEach(key => {
+            const value = dictionary[key];
 
-        let nonUsedCategories = this.allCategories.filter(x => !filmCategories.some(y => y.id === x.id)); //      
+            if (key === 'null') {
+                value.forEach(x => options.push(({ id: x.id, text: x.name, selected: filmCategories.some(y => y.id === x.id) })));
+            }
+            else {
+                const parentCategoryName = allCategories.find(x => x.id === parseInt(key)).name;
 
-        this.renderFilmCategories(filmCategories);
-
-        filmCategories.forEach(x => {
-    
-            let relatedCategories = nonUsedCategories.filter(y => y.parentCategoryId === x.id);
-
-            this.renderRelatedCategories(relatedCategories, x.id);
+                const children = value.map(({ id, name }) => ({ id, text: name, selected: filmCategories.some(y => y.id === id) }));
+                options.push({
+                    text: parentCategoryName + ':',
+                    children,                    
+                });
+            }
         });
 
-        let rootCategories = nonUsedCategories.filter(category => category.parentCategoryId === null);
-        this.renderRelatedCategories(rootCategories);
-
-        console.log(rootCategories);
+        return options;
     }
 
-    renderFilmCategories(filmCategories) {
-        var fragment = document.createDocumentFragment();
-       
-        filmCategories.forEach(category => fragment.appendChild(this.createOptionButton(category)));
+    async render(filmCategories) {
+        const options = await this.getOptions(filmCategories);
 
-        this.filmCategoriesContainer.appendChild(fragment);
-    }
-
-    renderRelatedCategories(categories, parentId) {            
-        let fragment = document.createDocumentFragment();
-        categories.forEach(category => fragment.appendChild(this.createOptionButton(category)));
-
-        let container = document.createElement('div');
-        container.id = `childs-${parentId}`;
-
-        container.appendChild(fragment);
-        this.relatedCategoriesContainer.appendChild(container);
-    }
-
-    renderRootCategories(categories) {
-        let fragment = document.createDocumentFragment();
-        categories.forEach(category => fragment.appendChild(this.createOptionButton(category)));
-        this.rootCategoriesContainer.appendChild(fragment);
-    }
-   
-    removeCategory() {
-
-    }
-
-    addCategory() {
-
-    }
-
-    setContainers() {     
-        this.relatedCategoriesContainer = document.createElement('div');
-        this.relatedCategoriesContainer.id = 'relatedCategoriesContainerId';
-        this.container.appendChild(this.relatedCategoriesContainer);
-
-        this.rootCategoriesContainer = document.createElement('div');
-        this.rootCategoriesContainer.id = 'rootCategoriesContainerId';
-        this.container.appendChild(this.rootCategoriesContainer);
-
-        this.filmCategoriesContainer = document.createElement('div');
-        this.filmCategoriesContainer.id = 'filmCategoriesContainerId';
-        this.container.appendChild(this.filmCategoriesContainer);
+        $(document).ready(() => {
+            $(this.cotainer).select2({
+                data: options
+            });
+        });
+        console.log(options);
     }
 }
 
-const categorySelector = new СategoriesSelector();
-categorySelector.render();
+
+
