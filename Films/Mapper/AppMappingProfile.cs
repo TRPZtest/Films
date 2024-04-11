@@ -11,11 +11,9 @@ namespace Films.Mapper
         {
             CreateMap<Film, FilmModel>();
             CreateMap<Film, EditFilmModel>();
-            CreateMap<EditFIlmRequestModel, Film>().ForMember(x => x.Categories, opt => opt.Ignore()); ;
+            CreateMap<EditFIlmRequestModel, Film>().ForMember(x => x.Categories, opt => opt.Ignore()); 
             CreateMap<Category, CategoryModel>();
-
-
-            
+            CreateMap<Category, EditCategoryModel>().ReverseMap();         
         }
     }
 }

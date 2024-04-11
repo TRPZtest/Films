@@ -11,6 +11,6 @@ namespace Films.Data.Db.Entities
         [Length(1, 200)]
         public string Director {  get; set; }
         public DateTime ReleaseDate { get; set; }
-        public List<Category> Categories { get; set; } = new List<Category>();
+        public List<Category> Categories { get; set; } = [];
     }
 }
