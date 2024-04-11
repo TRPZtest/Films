@@ -65,8 +65,7 @@
             $(this.cotainer).select2({
                 data: options
             });
-        });
-        console.log(options);
+        });        
     }
 }
 
