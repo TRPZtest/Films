@@ -48,6 +48,11 @@ namespace Films.Controllers
         {          
             var allCategories = await _service.GetAllAsync();
 
+            var parents = await _service.GetAllParents(request.ParentCategoryId.GetValueOrDefault());
+            if (parents.Any(x => x.Id == request.Id))           
+                return BadRequest("Wrong parent category!");            
+               
+
             var category = _mapper.Map<Category>(request);
 
             await _service.Edit(category);
