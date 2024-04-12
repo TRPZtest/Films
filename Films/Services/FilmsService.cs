@@ -34,13 +34,13 @@ namespace Films.Services
 
         public async Task<List<Film>> GetAllAsync(int[]? categories = null, string? director = null, SortType? sortType = null)
         {
-            var films = _filmsDbSet.AsQueryable();
+            var films = _filmsDbSet.Include(x => x.Categories).AsQueryable();
             if (categories!.Any())           
                 films = films.Where(x => x.Categories.Any(y => categories!.Contains(y.Id)));
             if (!string.IsNullOrWhiteSpace(director))
                 films = films.Where(x => x.Director.Contains(director));
 
-            var result = await films.Include(x => x.Categories)
+            var result = await films
                 .AsNoTracking()
                 .ToListAsync();
             return result;
