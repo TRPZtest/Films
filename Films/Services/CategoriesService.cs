@@ -30,12 +30,16 @@ namespace Films.Services
 
         public async Task Edit(Category category)
         {
-            if (category.Id == category.ParentCategoryId)
-                throw new Exception("Wrong parent category Id");
-
+            if (category.ParentCategoryId != null)
+            {
+                var parents = await GetAllParents(category.ParentCategoryId.GetValueOrDefault());
+                if (parents.Any(x => x.Id == category.Id))
+                    throw new Exception("Wrong category Id");
+            }
+                       
             _context.Update(category);
             await _context.SaveChangesAsync();
-        }
+        }        
 
         public async Task Add(Category category)
         {
@@ -49,7 +53,7 @@ namespace Films.Services
 
             foreach (var category in categories)
             {
-                category.NestingLevel = await GetNestingLevel(category.Id);
+                category.NestingLevel = (await GetAllParents(category.Id)).Count() -1;
             }
                                
             return categories;
@@ -61,21 +65,20 @@ namespace Films.Services
 
             return film.Categories;
         }
-
-        private async Task<int> GetNestingLevel(int categoryId)
+  
+        public async Task<List<Category>> GetAllParents(int categoryId)
         {
-            var category =  await _context.Categories.FindAsync(categoryId);
-
-            int nestingLevel = 0;
-            var parent = category.ParentCategory;
-
-            while (parent != null)
+            var result = new List<Category>();
+            int? parentId = categoryId;
+            do
             {
-                parent = parent?.ParentCategory;
-                nestingLevel++;
+                var category = await _context.Categories.FirstOrDefaultAsync(x => x.Id == parentId);
+                result.Add(category);
+                parentId = category.ParentCategoryId;
             }
+            while (parentId != null);
 
-            return nestingLevel;
+            return result;
         }
     }
 }

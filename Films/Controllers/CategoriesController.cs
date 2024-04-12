@@ -27,15 +27,14 @@ namespace Films.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Edit([FromRoute]int Id)
+        public async Task<IActionResult> Edit([FromRoute]int id)
         {
-            var category = await _service.GetById(Id);
+            var category = await _service.GetById(id);
 
             if (category == null)             
                 return NotFound();
             
-            var allCategories = await _service.GetAllAsync();
-            allCategories.RemoveAll(x => x.Id == category.Id);
+            var allCategories = await _service.GetAllAsync();      
 
             var editModel = _mapper.Map<EditCategoryModel> (category);
 
@@ -46,10 +45,7 @@ namespace Films.Controllers
 
         [HttpPost]
         public async Task<IActionResult> Edit([FromForm] EditCategoryModel request)
-        {
-            if (request.Id == request.ParentCategoryId)
-                return BadRequest();
-
+        {          
             var allCategories = await _service.GetAllAsync();
 
             var category = _mapper.Map<Category>(request);
